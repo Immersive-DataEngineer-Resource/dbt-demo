@@ -1,0 +1,15 @@
+my_project:
+  outputs:
+
+    dev:
+      type: postgres
+      threads: 1
+      host: localhost
+      port: 15432
+      user: postgres
+      pass: pass
+      dbname: coba
+      schema: public
+
+  target: dev
+
