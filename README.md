@@ -21,7 +21,7 @@ Click [here](docker-compose.yml) to see the content
 docker compose up -d
 ```
 
-You can now access postgre at `localhost:15432`
+You can now access postgre at `localhost:5432`
 
 - User: `postgres`
 - Password: `pass`
@@ -84,7 +84,7 @@ To make a new dbt-profie directory, you can invoke the following:
 ```bash
 mkdir dbt-profiles
 touch dbt-profiles/profiles.yml
-export DBT_PROFILES_DIR=$(pwd)/dbt-porfiles
+export DBT_PROFILES_DIR=$(pwd)/dbt-profiles
 ```
 
 You can set your `profiles.yml` as follow:
@@ -97,10 +97,10 @@ my_project:
       type: postgres
       threads: 1
       host: localhost
-      port: 15432
+      port: 5432
       user: postgres
       pass: pass
-      dbname: coba
+      dbname: store
       schema: public
 
   target: dev

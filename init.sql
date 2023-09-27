@@ -27,6 +27,18 @@ CREATE TABLE order_details (
   price DECIMAL(10, 2) NOT NULL
 );
 
+INSERT INTO brands (name) VALUES
+('Apple'),
+('Samsung'),
+('Sony');
+
+-- Populate products table
+INSERT INTO products (brand_id, name, price) VALUES
+(1, 'iPhone 13', 799.99),
+(1, 'MacBook Pro', 1299.99),
+(2, 'Galaxy S21', 699.99),
+(3, 'PlayStation 5', 499.99);
+
 DO $$ 
 DECLARE 
   day_counter DATE;

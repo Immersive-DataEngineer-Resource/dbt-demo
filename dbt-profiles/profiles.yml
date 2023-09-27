@@ -5,10 +5,10 @@ my_project:
       type: postgres
       threads: 1
       host: localhost
-      port: 15432
+      port: 5432
       user: postgres
       pass: pass
-      dbname: coba
+      dbname: store
       schema: public
 
   target: dev

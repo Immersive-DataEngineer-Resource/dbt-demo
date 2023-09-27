@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: daily_sales
+    description: "Aggregated sales metrics per day"
+    columns:
+      - name: order_date
+        description: "The date of the orders"
+        tests:
+          - not_null
+      - name: total_quantity
+        description: "Total quantity of products sold"
+        tests:
+          - not_null
+      - name: total_revenue
+        description: "Total revenue for the day"
+        tests:
+          - not_null

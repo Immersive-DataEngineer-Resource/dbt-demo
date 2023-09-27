@@ -35,3 +35,10 @@ models:
     # Config indicated by + and applies to all files under models/example/
     example:
       +materialized: view
+    store:
+      +schema: public
+      +database: store
+    store_analytics:
+      +materialized: table
+      +schema: analytics
+      +database: store
