@@ -384,4 +384,14 @@ limit 1000;
   - product name
 - Base on that model, make another model named `per_brand_daily_sales`
 
+# Generating documentation
+
+You can generate the documentation by running:
+
+```bash
+dbt docs generate
+dbt docs serve
+```
+
+You will be able to access the documentation through your browser.
 
