@@ -1,11 +1,67 @@
--- create a table
-CREATE TABLE test(
-  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  name TEXT NOT NULL,
-  archived BOOLEAN NOT NULL DEFAULT FALSE
+-- Create the brands table
+CREATE TABLE brands (
+  brand_id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL
 );
 
--- add test data
-INSERT INTO test (name, archived)
-  VALUES ('test row 1', true),
-  ('test row 2', false);
+-- Create the products table
+CREATE TABLE products (
+  product_id SERIAL PRIMARY KEY,
+  brand_id INT REFERENCES brands(brand_id),
+  name VARCHAR(255) NOT NULL,
+  price DECIMAL(10, 2) NOT NULL
+);
+
+-- Create the orders table
+CREATE TABLE orders (
+  order_id SERIAL PRIMARY KEY,
+  order_date TIMESTAMP DEFAULT current_timestamp
+);
+
+-- Create the order_details table
+CREATE TABLE order_details (
+  order_detail_id SERIAL PRIMARY KEY,
+  order_id INT REFERENCES orders(order_id),
+  product_id INT REFERENCES products(product_id),
+  quantity INT NOT NULL,
+  price DECIMAL(10, 2) NOT NULL
+);
+
+DO $$ 
+DECLARE 
+  day_counter DATE;
+BEGIN
+  FOR day_counter IN SELECT generate_series(
+      current_date - INTERVAL '14 days',
+      current_date,
+      INTERVAL '1 day'
+    )::DATE
+  LOOP
+    INSERT INTO orders (order_date)
+    SELECT
+      day_counter + (random() * INTERVAL '1 day')
+    FROM
+      generate_series(1, floor(random() * (50 - 10 + 1) + 10)::INT);
+  END LOOP;
+END $$;
+
+DO $$ 
+DECLARE 
+  target_order_id INT;
+  random_product_id INT;
+  random_quantity INT;
+  product_price DECIMAL(10, 2);
+BEGIN
+  FOR target_order_id IN SELECT order_id FROM orders
+  LOOP
+    -- Randomly choose a product ID, let's assume IDs are between 1 and 4
+    random_product_id := floor(random() * 4 + 1)::INT;
+    -- Random quantity between 1 and 10
+    random_quantity := floor(random() * 10 + 1)::INT;
+
+    SELECT price INTO product_price FROM products WHERE product_id = random_product_id;
+
+    INSERT INTO order_details (order_id, product_id, quantity, price)
+    VALUES (target_order_id, random_product_id, random_quantity, product_price * random_quantity);
+  END LOOP;
+END $$;
