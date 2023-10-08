@@ -15,7 +15,8 @@ CREATE TABLE products (
 -- Create the orders table
 CREATE TABLE orders (
   order_id SERIAL PRIMARY KEY,
-  order_date TIMESTAMP DEFAULT current_timestamp
+  order_date TIMESTAMP DEFAULT current_timestamp,
+  customer_phone VARCHAR(15)
 );
 
 -- Create the order_details table
@@ -49,9 +50,18 @@ BEGIN
       INTERVAL '1 day'
     )::DATE
   LOOP
-    INSERT INTO orders (order_date)
+    -- Generate a random phone number with prefix '91' or '62'
+    phone_prefix := CASE WHEN random() < 0.5 THEN '91' ELSE '62' END;
+    phone_number := phone_prefix || floor(random() * (9999999999 - 1000000000 + 1) + 1000000000)::TEXT;
+    
+    -- Optionally add '+' sign
+    IF random() < 0.5 THEN
+      phone_number := '+' || phone_number;
+    END IF;
+    INSERT INTO orders (order_date, customer_phone)
     SELECT
-      day_counter + (random() * INTERVAL '1 day')
+      day_counter + (random() * INTERVAL '1 day'),
+      phone_number
     FROM
       generate_series(1, floor(random() * (50 - 10 + 1) + 10)::INT);
   END LOOP;

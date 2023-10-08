@@ -374,15 +374,103 @@ from store.public_analytics.daily_sales
 limit 1000;
 ```
 
-# Try it yourself
+# Add test
 
-- Make a model based on order_details containing the following info:
-  - order date
+You can add test to your model by modifying your `schema.yml` into:
+
+```yml
+# this is your schema.yml
+
+version: 2
+
+models:
+  
+  - name: mrt_test
+    description: ""
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - user_id
+            - ticker_symbol
+    columns:
+      - name: (...)
+```
+
+To see what kind of test you can pefrom, you can visit dbt_utils documentation: https://github.com/dbt-labs/dbt-utils
+
+# Installing dbt package
+
+You can install additional dbt package by modifying `packages.yml` and invoking `dbt deps` afterwise.
+
+```yml
+packages:
+  - package: dbt-labs/snowplow
+    version: 0.7.0
+
+  - git: "https://github.com/dbt-labs/dbt-utils.git"
+    revision: 0.9.2
+
+  - local: /opt/dbt/redshift
+```
+
+See dbt documentation for more information: https://docs.getdbt.com/docs/build/packages
+
+# Try it yourself (1)
+
+- Make a model named on `stg_order_details` containing the following info:
+  - order_date
   - quantity
   - price
   - brand name
   - product name
-- Base on that model, make another model named `per_brand_daily_sales`
+- Base on `stg_order_details`, make another model named `fct_per_brand_daily_sales` containing per brand daily sales:
+  - brand_name
+  - order_date
+  - total_quantity
+  - total_revenue
+- Add test to make sure that `fct_per_brand_daily_sales` has unique combination of `order_date` and `brand_name`
+
+# Macro
+
+Macro allows you to put reusable logic in one place.
+
+For example, you want to normalize phone number by removing `+` prefix (i.e., turn `+621345678` into `621345678`).
+In that case, you can create a file under `macros` folder (e.g., `macros/normalize_phone_number.sql`)
+
+```sql
+{% macro normalize_phone_number(column_name) %}
+    ltrim({{ column_name }}, '+')
+{% endmacro %}
+```
+
+Once you define the macro, you can call the macro in your model definition
+
+```sql
+-- models/some_model.sql
+WITH base AS (
+    SELECT
+        *,
+        {{ normalize_phone_number('customer_phone') }} AS normalized_phone
+    FROM
+        orders
+)
+SELECT * FROM base
+```
+
+# Try it yourself (2)
+
+- Update `stg_order_details`, add the following columns:
+  - customer_phone
+  - normalized_customer_phone (use macro to normalize the phone number)
+  - country (based on normalized_customer_phone)
+    - If the phone number is started with `62`, the country should be `Indonesia`
+    - If the phone number is started with `91`, the country should be `India`
+- Base on `stg_order_details`, make another model named `fct_per_country_daily_sales` containing per country daily sales:
+  - country
+  - order_date
+  - total_quantity
+  - total_revenue
+
 
 # Generating documentation
 
