@@ -1,4 +1,3 @@
 .venv
-db-data
-logs
-pgadmin-data
+citus-db-data
+citus-healthcheck

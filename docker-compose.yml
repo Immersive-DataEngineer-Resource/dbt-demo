@@ -1,19 +1,46 @@
 version: '3'
 
 services:
-  database:
-    image: 'postgres:latest'
+
+  master:
+    container_name: "${COMPOSE_PROJECT_NAME:-citus}_master"
+    image: "citusdata/citus:12.0.0"
     ports:
-      - 5432:5432
-    environment:
+      - "${COORDINATOR_EXTERNAL_PORT:-5432}:5432"
+    labels:
+      - "com.citusdata.role=Master"
+    environment: &AUTH
       - POSTGRES_PASSWORD=pass
       - POSTGRES_USER=postgres
       - POSTGRES_DB=store
+      - PGUSER=postgres
+      - POSTGRES_HOST_AUTH_METHOD=trust
     networks:
       - postgres-network
     volumes:
-      - ./db-data/:/var/lib/postgresql/data/
+      - ./citus-db-data/:/var/lib/postgresql/data/
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  worker:
+    image: "citusdata/citus:12.0.0"
+    labels:
+      - "com.citusdata.role=Worker"
+    depends_on:
+      - manager
+    environment: *AUTH
+    command: "/wait-for-manager.sh"
+    volumes:
+      - ./citus-healthcheck:/healthcheck
+
+  manager:
+    container_name: "${COMPOSE_PROJECT_NAME:-citus}_manager"
+    image: "citusdata/membership-manager:0.3.0"
+    volumes:
+      - "${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock"
+      - ./citus-healthcheck:/healthcheck
+    depends_on:
+      - master
+    environment: *AUTH
 
 networks: 
   postgres-network:

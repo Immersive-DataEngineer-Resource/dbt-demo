@@ -1,3 +1,11 @@
+reset-docker() {
+    docker compose down
+    sudo rm -Rf citus-db-data
+    sudo rm -Rf citus-healthcheck
+    docker compose up -d
+}
+
+
 if [ ! -d .venv ]
 then
     python -m venv .venv
