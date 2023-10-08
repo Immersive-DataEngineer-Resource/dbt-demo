@@ -472,6 +472,76 @@ SELECT * FROM base
   - total_revenue
 
 
+# Custom materialization
+
+DBT support several materializations including:
+- table
+- view
+- ephemeral
+- incremental
+
+Please see the documentation for more detail information https://docs.getdbt.com/docs/build/materializations
+
+However, since we are using citus, and we have distributed table, we need to create a new materialization https://docs.getdbt.com/guides/advanced/creating-new-materializations
+
+To do this, you can make a macro under `macros/materializations` folder. You can name the file `citus_materialization.sql`
+
+```sql
+{% macro materialize_table_citus(this, old_relation, sql) %}
+  {%- set tmp_relation = make_temp_relation(this) -%}
+  {%- set distribution_column = config.get('distribution_column', default='id') -%}  -- 'id' is the default distribution column
+  
+  -- Create an empty table
+  create table {{ this }} (like {{ old_relation.include() }} including all);
+  
+  -- Insert data into empty table
+  insert into {{ this }} ({{ sql }});
+  
+  -- Make it a Citus distributed table
+  select create_distributed_table('{{ this }}', '{{ distribution_column }}');
+{% endmacro %}
+```
+
+Then, in your model, you can define the materialization configuration:
+
+```sql
+{{
+    config(
+        materialized='citus_materialization',
+        distribution_column='order_date'
+    )
+}}
+
+WITH base AS (
+    SELECT
+        DATE(orders.order_date) AS order_date,
+        order_details.quantity,
+        order_details.price
+    FROM
+        {{ source('store', 'orders') }} AS orders
+    JOIN
+        {{ source('store', 'order_details') }} AS order_details
+    ON
+        orders.order_id = order_details.order_id
+),
+aggregated_sales AS (
+    SELECT
+        order_date,
+        SUM(quantity) AS total_quantity,
+        SUM(price) AS total_revenue
+    FROM
+        base
+    GROUP BY
+        order_date
+)
+SELECT
+    *
+FROM
+    aggregated_sales
+ORDER BY
+    order_date
+```
+
 # Generating documentation
 
 You can generate the documentation by running:

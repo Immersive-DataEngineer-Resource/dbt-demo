@@ -1,3 +1,10 @@
+{{
+    config(
+        materialized='citus_materialization',
+        distribution_column='order_date'
+    )
+}}
+
 WITH base AS (
     SELECT
         DATE(orders.order_date) AS order_date,
