@@ -43,6 +43,8 @@ INSERT INTO products (brand_id, name, price) VALUES
 DO $$ 
 DECLARE 
   day_counter DATE;
+  phone_prefix VARCHAR(2);
+  phone_number VARCHAR(15);
 BEGIN
   FOR day_counter IN SELECT generate_series(
       current_date - INTERVAL '14 days',
