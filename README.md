@@ -415,7 +415,7 @@ packages:
 
 See dbt documentation for more information: https://docs.getdbt.com/docs/build/packages
 
-# Try it yourself (1)
+# Task (1)
 
 - Make a model named on `stg_order_details` containing the following info:
   - order_date
@@ -457,7 +457,7 @@ WITH base AS (
 SELECT * FROM base
 ```
 
-# Try it yourself (2)
+# Task (2)
 
 - Update `stg_order_details`, add the following columns:
   - customer_phone
