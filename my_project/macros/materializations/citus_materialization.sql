@@ -31,10 +31,7 @@
   -- build model
   {% call statement('main') -%}
     {{ get_create_table_as_sql(False, intermediate_relation, sql) }}
-
-    -- Make it a Citus distributed table
-    select create_distributed_table('{{ this }}', '{{ distribution_column }}');
-
+    select create_distributed_table('{{ intermediate_relation }}', '{{ distribution_column }}');
   {%- endcall %}
 
   -- cleanup
