@@ -491,6 +491,7 @@ To do this, you can make a macro under `macros/materializations` folder. You can
 ```sql
 {% materialization citus_materialization, adapter='postgres' %}
 
+  -- NOTE: For CITUS, We need to add distribution_column parameter
   {%- set distribution_column = config.get('distribution_column', default='id') -%}
 
   {%- set existing_relation = load_cached_relation(this) -%}
@@ -522,10 +523,8 @@ To do this, you can make a macro under `macros/materializations` folder. You can
   -- build model
   {% call statement('main') -%}
     {{ get_create_table_as_sql(False, intermediate_relation, sql) }}
-
-    -- Make it a Citus distributed table
-    select create_distributed_table('{{ this }}', '{{ distribution_column }}');
-
+    -- NOTE: For CITUS, We need to turn the table into distributed table
+    select create_distributed_table('{{ intermediate_relation }}', '{{ distribution_column }}');
   {%- endcall %}
 
   -- cleanup
@@ -599,6 +598,19 @@ FROM
     aggregated_sales
 ORDER BY
     order_date
+```
+
+# Checking if the table is distributed
+
+You can run the following query to ensure that the table is distributed:
+
+```sql
+SELECT 
+  true AS is_distributed
+FROM 
+  pg_dist_partition 
+WHERE 
+  logicalrelid = 'public_analytics.daily_sales'::regclass;
 ```
 
 # Generating documentation
