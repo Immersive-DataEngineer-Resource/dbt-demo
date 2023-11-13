@@ -1,0 +1,7 @@
+Task
+tabel yang menampilkan kolom berikut :
+	- order_date —> date, contoh: 2023-10-25
+	- product_name
+	- brand_name
+	- qty_sold
+	- revenue

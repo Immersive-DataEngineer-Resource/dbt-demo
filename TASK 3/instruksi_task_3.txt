@@ -1,0 +1,3 @@
+Task
+1. ulangi langkah-langkah demo setup dbt dari 0 sampai bisa membuat model baru !
+2. berikan screenshot di setiap langkah dan hasil dari langkah yang dijalankan !
