@@ -1,0 +1,4 @@
+Task
+1. Jelaskan apa itu DBT !
+2. Apa keuntungan menggunakan DBT ?
+3. Jelaskan dependency tree dan versioning pada DBT !
